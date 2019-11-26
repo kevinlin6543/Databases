@@ -47,14 +47,14 @@ class RottentomatoesSpider(scrapy.Spider):
         meta_info = response.xpath('//div[@class="meta-value"]')
         meta_tag = response.xpath('//div[@class="meta-label subtle"]/text()')
         for i, item in enumerate(meta_info):
-            tag = item.extract().rstrip(': ').lower()
+            tag = meta_tag[i].extract().rstrip(': ').lower()
             if tag == 'directed by':
                 tag = 'director'
             if tag == 'written by':
                 tag = 'writer'
             if tag == 'in theaters':
                 tag = 'air_date'
-                movie[tag] = date_re.match(item.xpath('normalize-space(.)').extract_first()).group()
+                movie[tag] = date_re.match(meta_info[i].xpath('normalize-space(.)').extract_first()).group()
                 continue
             try:
                 if len(item.xpath('.//text()').extract()) > 1 and tag != 'runtime':
@@ -63,4 +63,6 @@ class RottentomatoesSpider(scrapy.Spider):
                     movie[tag] = item.xpath('normalize-space(.)').extract_first()
             except Exception:
                 continue
+
+
         yield movie

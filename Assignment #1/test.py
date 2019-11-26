@@ -14,10 +14,10 @@ def assert_query(sql_query, orm_query):
     sql_list = []
 
     sql_items = conn.execute(orm_query).fetchall()
-    for i, item in enumerate(sql_query):
+    for _, item in enumerate(sql_query):
         orm_list.append(item.__repr__())
 
-    for i, item in enumerate(sql_items):
+    for _, item in enumerate(sql_items):
         sql_list.append(item)
 
     print(orm_list)
