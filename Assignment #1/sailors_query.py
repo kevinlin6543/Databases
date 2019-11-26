@@ -3,12 +3,18 @@ from sqlalchemy import orm, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Integer, String, Column, DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, relationship, sessionmaker
 from sqlalchemy import PrimaryKeyConstraint
+from sqlalchemy import and_, tuple_, desc
+from sqlalchemy import distinct
 from password import PASSWORD
 
 Base = declarative_base()
-
+engine = create_engine('mysql+pymysql://kevinlin:' + PASSWORD + '@localhost:3306/sailorsdb')
+conn = engine.connect()
+Session = orm.sessionmaker()
+Session.configure(bind=engine)
+session = Session()
 
 class Sailor(Base):
     __tablename__ = 'sailors'
@@ -18,9 +24,11 @@ class Sailor(Base):
     rating = Column(Integer)
     age = Column(Integer)
 
-    def __repr__(self):
-        return "<Sailor(id=%s, name='%s', rating=%s)>" % (self.sid, self.sname, self.age)
+    def __str__(self):
+        return "<Sailor(id=%s, name='%s', rating=%s, age=%s)>" % (self.sid, self.sname, self.rating, self.age)
 
+    def __repr__(self):
+        return self.sid, self.sname, self.rating, self.age
 
 class Boat(Base):
     __tablename__ = 'boats'
@@ -33,9 +41,11 @@ class Boat(Base):
     reservations = relationship('Reservation',
                                 backref=backref('boat', cascade='delete'))
 
-    def __repr__(self):
-        return "<Boat(id=%s, name='%s', color=%s)>" % (self.bid, self.bname, self.color)
+    def __str__(self):
+        return "<Boat(id=%s, name='%s', color=%s, length=%s)>" % (self.bid, self.bname, self.color, self.length)
 
+    def __repr__(self):
+        return self.bid, self.bname, self.color, self.length
 
 class Reservation(Base):
     __tablename__ = 'reserves'
@@ -47,24 +57,27 @@ class Reservation(Base):
 
     sailor = relationship('Sailor')
 
-    def __repr__(self):
+    def __str__(self):
         return "<Reservation(sid=%s, bid=%s, day=%s)>" % (self.sid, self.bid, self.day)
 
-
-engine = create_engine('mysql+pymysql://kevinlin:' + PASSWORD + '@localhost:3306/sailorsdb')
-conn = engine.connect()
-Session = orm.sessionmaker()
-Session.configure(bind=engine)
-session = Session()
+    def __repr__(self):
+        return self.sid, self.bid, self.day
 
 
+# Sample queries based off the SQL query created initially
 
-sql_query = session.query(func.avg(Sailor.age)).filter_by(rating=10).group_by(Sailor.age).first()
-print(sql_query)
+def sample_orm_queries():
+    sub_query = session.query(Sailor.sid, func.count(Sailor.sid)).join(Reservation, Reservation.sid == Sailor.sid).join(
+        Boat, and_(Reservation.bid == Boat.bid, Boat.color == 'red')).group_by(Sailor.sid).subquery()
+    sql_query = session.query(Sailor).join(Reservation, Reservation.sid == Sailor.sid).join(Boat,
+                                                                                            Reservation.bid == Boat.bid).group_by(
+        Sailor.sid).having(tuple_(Sailor.sid, func.count(Sailor.sid)).in_(sub_query)).all()
 
-sql_query = session.query(Sailor).outerjoin(Reservation, Sailor.sid == Reservation.sid).filter_by(sid=None).join(Boat, Reservation.bid==Boat.bid and Boat.color=='red')
-print(sql_query)
+    sql_query = session.query(Boat.bid, Boat.bname, func.count(Reservation.bid).label('total')).join(Reservation,
+                                                                                                     Reservation.bid == Boat.bid).order_by(
+        desc('total')).group_by(Boat.bid).first()
 
-#print(conn.execute("SELECT * from sailors").fetchall())
+    sub_query = session.query(Reservation).join(Boat, and_(Reservation.bid == Boat.bid, Boat.color == 'red')).subquery()
+    sql_query = session.query(Sailor).outerjoin(sub_query, Sailor.sid == sub_query.c.sid).filter_by(sid=None).all()
 
-print(conn.execute("SELECT t.bid, t.sid, MAX(count1) FROM (SELECT r.bid as bid, r.sid as sid, COUNT(r.bid) as count1 FROM reserves as r, sailors as s WHERE r.sid = s.sid GROUP BY r.bid, r.sid ORDER BY count1 DESC) as t GROUP BY t.bid ORDER BY t.bid;").fetchall())
+    sql_query = session.query(func.avg(Sailor.age)).filter_by(rating=10).group_by(Sailor.age).first()
