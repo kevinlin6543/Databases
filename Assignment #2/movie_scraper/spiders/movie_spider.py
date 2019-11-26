@@ -70,22 +70,3 @@ class RottentomatoesSpider(scrapy.Spider):
 
 
         yield movie
-
-
-
-
-        '''
-        reviews = response.xpath('//table[@class="table"]//tr/a')
-
-        for review in reviews[1:]:
-            movie = MovieItem()
-
-            title = review.xpath('.//td/a/text()').extract_first()
-            print(title)
-            movie["title"], movie["year"] = re.search(r'(.+) \((\d+)\)', title).groups()
-            movie["score"] = review.xpath('.//span[@class="tMeterScore"]/text()').extract_first()
-            movie["num_reviews"] = review.xpath('.//td[contains(@class,"right")]/text()').extract_first()
-            movie["summary"] = review.xpath
-
-            yield movie
-        '''
