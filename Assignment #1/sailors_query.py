@@ -1,12 +1,6 @@
-from sqlalchemy import create_engine
-from sqlalchemy import orm, func
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Integer, String, Column, DateTime
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import backref, relationship, sessionmaker
-from sqlalchemy import PrimaryKeyConstraint
-from sqlalchemy import and_, tuple_, desc
-from sqlalchemy import distinct
+from sqlalchemy import Integer, String, Column, DateTime, and_, tuple_, desc, ForeignKey, PrimaryKeyConstraint, orm, func, create_engine
+from sqlalchemy.orm import backref, relationship
 from password import PASSWORD
 
 Base = declarative_base()

@@ -1,12 +1,6 @@
-from sqlalchemy import create_engine
-from sqlalchemy import orm, func
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Integer, String, Column, DateTime
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import backref, relationship, sessionmaker
-from sqlalchemy import PrimaryKeyConstraint
-from sqlalchemy import and_, tuple_, desc
-from sqlalchemy import distinct
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, PrimaryKeyConstraint, orm, func, create_engine
+from sqlalchemy.orm import backref, relationship
 from password import PASSWORD
 from operator import add, sub
 
@@ -85,19 +79,19 @@ def profit_tracker():
     repair_list = []
     cost_list = []
     earned_list = []
-    for i in range(len(repair_query)):
-        value = repair_query[i][1]
+    for i, item in enumerate(repair_query):
+        value = item[1]
         if value == None:
             repair_list.append(0)
         else:
             repair_list.append(int(value))
 
-    for i in range(len(boat_costs)):
-        value = boat_costs[i][0]
+    for i, item in enumerate(boat_costs):
+        value = item[0]
         cost_list.append(int(value))
 
-    for i in range(len(earned_query)):
-        value = earned_query[i][0]
+    for i, item in enumerate(earned_query):
+        value = item[0]
         earned_list.append(int(value))
 
     total_cost = list(map(add, repair_list, cost_list))

@@ -1,7 +1,4 @@
-from sqlalchemy import orm, create_engine, func
-from sqlalchemy import and_, tuple_, desc
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import distinct
+from sqlalchemy import orm, create_engine, func, and_, tuple_
 from password import PASSWORD
 from sailors_query import Base, Sailor, Boat, Reservation
 
