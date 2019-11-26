@@ -14,11 +14,11 @@ def assert_query(sql_query, orm_query):
     sql_list = []
 
     sql_items = conn.execute(orm_query).fetchall()
-    for i in range(len(sql_query)):
-        orm_list.append(sql_query[i].__repr__())
+    for i, item in enumerate(sql_query):
+        orm_list.append(item.__repr__())
 
-    for i in range(len(sql_items)):
-        sql_list.append(sql_items[i])
+    for i, item in enumerate(sql_items):
+        sql_list.append(item)
 
     print(orm_list)
     print(sql_list)

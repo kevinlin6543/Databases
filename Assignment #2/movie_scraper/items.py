@@ -8,7 +8,6 @@
 import scrapy
 
 import scrapy
-from scrapy.loader.processors import MapCompose, TakeFirst
 
 
 class MovieItem(scrapy.Item):

@@ -1,5 +1,4 @@
 import scrapy
-import re
 from datetime import datetime
 from movie_scraper.items import MovieItem
 import re
@@ -18,15 +17,12 @@ class RottentomatoesSpider(scrapy.Spider):
             yield scrapy.Request(year_url.format(year), callback=self.parse_list)
 
     def parse_list(self, response):
-        sel = scrapy.Selector(response=response)
         reviews = response.xpath('//table[@class="table"]//tr//a')
         for review in reviews[1:]:
             href = review.xpath('@href').extract_first()
             yield response.follow(href, callback=self.parse_review)
 
     def parse_review(self, response):
-        sel = scrapy.Selector(response=response)
-        review = response.xpath('//h1[@class="mop-ratings-wrap__title mop-ratings-wrap__title--top"]')
         movie = MovieItem()
 
         date_re = re.compile('([A-z]{3}) (\d+), (\d+)')
@@ -50,23 +46,21 @@ class RottentomatoesSpider(scrapy.Spider):
         movie["description"] = response.xpath('normalize-space(//div[@id="movieSynopsis"]/text())').extract_first()
         meta_info = response.xpath('//div[@class="meta-value"]')
         meta_tag = response.xpath('//div[@class="meta-label subtle"]/text()')
-        for i in range(len(meta_info)):
-            tag = meta_tag[i].extract().rstrip(': ').lower()
+        for i, item in enumerate(meta_info):
+            tag = item.extract().rstrip(': ').lower()
             if tag == 'directed by':
                 tag = 'director'
             if tag == 'written by':
                 tag = 'writer'
             if tag == 'in theaters':
                 tag = 'air_date'
-                movie[tag] = date_re.match(meta_info[i].xpath('normalize-space(.)').extract_first()).group()
+                movie[tag] = date_re.match(item.xpath('normalize-space(.)').extract_first()).group()
                 continue
             try:
-                if len(meta_info[i].xpath('.//text()').extract()) > 1 and tag != 'runtime':
-                    movie[tag] = meta_info[i].xpath('normalize-space(.)').extract_first().split(', ')
+                if len(item.xpath('.//text()').extract()) > 1 and tag != 'runtime':
+                    movie[tag] = item.xpath('normalize-space(.)').extract_first().split(', ')
                 else:
-                    movie[tag] = meta_info[i].xpath('normalize-space(.)').extract_first()
-            except:
+                    movie[tag] = item.xpath('normalize-space(.)').extract_first()
+            except Exception:
                 continue
-
-
         yield movie

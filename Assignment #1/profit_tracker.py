@@ -97,7 +97,7 @@ def profit_tracker():
     total_cost = list(map(add, repair_list, cost_list))
     boat_profit = list(map(sub, earned_list, total_cost))
 
-    for i in range(len(boat_profit)):
-        print("Boat ID: %d has a profit of $%d" %(STARTING_BID+i, boat_profit[i]))
+    for i, item in enumerate(boat_profit):
+        print("Boat ID: %d has a profit of $%d" % (STARTING_BID+i, item))
 
 profit_tracker()

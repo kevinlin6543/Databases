@@ -8,7 +8,6 @@
 import pymongo
 
 from scrapy.exceptions import DropItem
-from scrapy.settings import Settings
 
 class MongoDBPipeline(object):
 
