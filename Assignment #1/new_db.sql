@@ -98,8 +98,3 @@ insert into repairs values (103, 100);
 insert into repairs values (104, 70);
 insert into repairs values (111, 30);
 insert into repairs values (112, 20);
-
-
-
-
-SELECT boats.*, reserves.hour AS reserves_hour, SUM(boats.rate * reserves.hour) FROM boats INNER JOIN reserves ON boats.bid = reserves.bid GROUP BY boats.bid;
