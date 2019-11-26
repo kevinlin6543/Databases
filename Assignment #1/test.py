@@ -1,6 +1,6 @@
 from sqlalchemy import orm, create_engine, func, and_, tuple_
 from password import PASSWORD
-from sailors_query import Base, Sailor, Boat, Reservation
+from sailors_query import Sailor, Boat, Reservation
 
 engine = create_engine('mysql+pymysql://kevinlin:' + PASSWORD + '@localhost:3306/sailorsdb')
 conn = engine.connect()
